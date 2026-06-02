@@ -1,0 +1,6 @@
+{
+  "name": "Flight Shooting Game",
+  "description": "A retro-themed, highly polished top-down airplane shooting game with stages, bosses, item drops, special moves, and a global leaderboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
