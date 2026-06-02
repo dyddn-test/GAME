@@ -6,11 +6,24 @@ export default function Leaderboard() {
   const [rankings, setRankings] = useState<RankData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dbStatus, setDbStatus] = useState<'supabase' | 'local'>('local');
 
   const fetchRankings = async () => {
     setLoading(true);
     setError('');
     try {
+      // Fetch DB Configuration Status
+      try {
+        const statusRes = await fetch('/api/db-status');
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          setDbStatus(statusData.status === 'active' ? 'supabase' : 'local');
+        }
+      } catch (err) {
+        console.error("Failed to query database connection status:", err);
+      }
+
+      // Fetch Rankings List
       const res = await fetch('/api/ranking');
       if (!res.ok) {
         throw new Error('랭킹을 불러오는데 실패했습니다.');
@@ -33,10 +46,23 @@ export default function Leaderboard() {
       {/* Glow Effect */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl pointer-events-none rounded-full"></div>
       
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div className="flex flex-wrap items-center gap-2">
           <Trophy className="w-6 h-6 text-emerald-400" />
-          <h2 className="text-xl font-sans font-bold text-gray-100 tracking-tight">명예의 전당 (Leaderboard)</h2>
+          <h2 className="text-xl font-sans font-bold text-gray-100 tracking-tight mr-1">명예의 전당 (Leaderboard)</h2>
+          {dbStatus === 'supabase' ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm font-mono shadow-emerald-500/10">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              Supabase Cloud DB
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-850 text-slate-450 border border-slate-800">
+              로컬 저장소 모드
+            </span>
+          )}
         </div>
         <button
           onClick={fetchRankings}
